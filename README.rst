@@ -21,6 +21,8 @@ send a kill (-INT) signal to it. Resulting graphs are stored as png in the direc
 you passed to -d option. Additionaly you can pass patterns with -a
 option then pidstat-grapher will waiting for a process cmdline matching the provided pattern.
 
-pidstat-grapher.py -p 2365,4589 -d /tmp/
-pidstat-grapher.py -a apache,lighttpd,sql -d /tmp
-pidstat-grapher.py -p 2365,4589 -a apache,lighttpd,sql -d /tmp
+Use cases ::
+
+ pidstat-grapher.py -p 2365,4589 -d /tmp/
+ pidstat-grapher.py -a apache,lighttpd,sql -d /tmp
+ pidstat-grapher.py -p 2365,4589 -a apache,lighttpd,sql -d /tmp
