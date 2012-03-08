@@ -34,7 +34,7 @@ from optparse import OptionParser
 
 GDEBUG=0
 PIDSTAT = "/usr/bin/pidstat"
-CMD_TEMPLATE = "%(cmd)s -p %(pid)s -u -d -h -l 1 3600"
+CMD_TEMPLATE = "%(cmd)s -p %(pid)s -u -d -r -h -l 1 3600"
 
 def find_pid_by_pattern(pattern):
     me = sys.argv[0]
@@ -125,12 +125,14 @@ class PidWatcherTask(threading.Thread):
         systemseries = []
         iorseries = []
         iowseries = []
+        rss = []
         for tick in dataset:
             timeseries.append(float(tick[0]))
             usrseries.append(float(tick[2].replace(',', '.')))
             systemseries.append(float(tick[3].replace(',', '.')))
-            iorseries.append(float(tick[7].replace(',', '.')))
-            iowseries.append(float(tick[8].replace(',', '.')))
+            rss.append(float(tick[10].replace(',', '.')))
+            iorseries.append(float(tick[12].replace(',', '.')))
+            iowseries.append(float(tick[13].replace(',', '.')))
         if not timeseries:
             return
         origin = timeseries[0]
@@ -143,7 +145,8 @@ class PidWatcherTask(threading.Thread):
                     'usrseries': usrseries,
                     'systemseries': systemseries,
                     'iorseries': iorseries,
-                    'iowseries': iowseries}
+                    'iowseries': iowseries,
+                    'rss': rss}
         self.lock.release()
 
 def stop_pidstat_watchers(threads):
@@ -216,3 +219,5 @@ if __name__ == "__main__":
                        "CPU %usr", "CPU %system", "load (%)", "load (%)", os.path.join(path, "cpu_"+name)+".png")
         create_graph(v['timeseries'], v['iorseries'], v['iowseries'], v['cmdline'],
                         "IO stats reads", "IO stats writes", "reads (kB)", "writes (kB)", os.path.join(path, "io_"+name)+".png")
+        create_graph(v['timeseries'], v['rss'], [0], v['cmdline'],
+                        "Physical memory use", "", "amount (kB)", "", os.path.join(path, "mem_"+name)+".png")
