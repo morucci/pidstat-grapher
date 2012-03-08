@@ -54,6 +54,10 @@ def create_graph(timeseries, dataseries1, dataseries2, gtitle,
     data1 = Gnuplot.Data(data1, title=title1)
     data2 = zip(timeseries, dataseries2)
     data2 = Gnuplot.Data(data2, title=title2, axes='x1y2')
+    yrange_max = max(dataseries1)
+    yrange_max = yrange_max * 1.2 or 1
+    y2range_max = max(dataseries2)
+    y2range_max = y2range_max * 1.2 or 1
     g = Gnuplot.Gnuplot(debug=GDEBUG)
     g.xlabel('duration (s)')
     g.ylabel(ylabel1)
@@ -61,8 +65,8 @@ def create_graph(timeseries, dataseries1, dataseries2, gtitle,
     g('set style data linespoints')
     g('set y2label "%s"' % ylabel2)
     g('set y2tics border')
-    g('set yrange [0:%s]' % str(max(dataseries1)+10))
-    g('set y2range [0:%s]' % str(max(dataseries2)+10))
+    g('set yrange [0:%s]' % str(yrange_max))
+    g('set y2range [0:%s]' % str(y2range_max))
     g('set output "%s"' % savepath)
     g('set terminal png size 1000,480')
     g._add_to_queue([data1, data2])
@@ -115,10 +119,11 @@ class PidWatcherTask(threading.Thread):
         dataset = []
         cmdline = None
         for line in out:
-            splittedline = re.split('\s{2,}', line)
+            splittedline = re.split('\s{1,}', line)
             if cmdline == None:
-                cmdline = splittedline[-1]
-            dataset.append(splittedline[:-1])
+                cmdline = " ".join(splittedline[15:])
+            splittedline = splittedline[:15]
+            dataset.append(splittedline)
         
         timeseries = []
         usrseries = []
